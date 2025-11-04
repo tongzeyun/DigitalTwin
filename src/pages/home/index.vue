@@ -1358,28 +1358,32 @@ onUnmounted(() => {
   flex-direction: column;
   background-color: #f5f5f5;
   overflow: hidden;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1;
   &::before {
     content: '';
-    width: 508px;
+    width: 100%;
     height: 100%;
-    background: url("@/assets/images/header/layer-left.png") no-repeat top left / 100% 100%;
+    background: url("@/assets/images/common/bg-layer.png") no-repeat top left / 100% 100%;
     position: absolute;
     top: 0;
     left: 0;
     z-index: 2;
     pointer-events: none;
   }
-  &::after {
-    content: '';
-    width: 508px;
-    height: 100%;
-    background: url("@/assets/images/header/layer-right.png") no-repeat top left / 100% 100%;
-    position: absolute;
-    top: 0;
-    right: 0;
-    z-index: 2;
-    pointer-events: none;
-  }
+  // &::after {
+  //   content: '';
+  //   width: 508px;
+  //   height: 100%;
+  //   background: url("@/assets/images/header/layer-right.png") no-repeat top left / 100% 100%;
+  //   position: absolute;
+  //   top: 0;
+  //   right: 0;
+  //   z-index: 2;
+  //   pointer-events: none;
+  // }
 }
 
 .header-section {

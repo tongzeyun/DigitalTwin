@@ -11,9 +11,8 @@ import { createApp } from 'vue'
 import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
 import '@/assets/styles/index.scss';
+import '@/assets/styles/common.scss';
 
 import App from './App.vue'
-
-import './style.css'
 
 createApp(App).use(router).use(ElementPlus).directive('hasPermi',hasPermi).mount('#app')

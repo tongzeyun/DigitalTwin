@@ -1,0 +1,18 @@
+// 模块统一样式
+.component-container {
+  .component-title {
+    display: flex;
+    .component-title-icon {
+      width: 40px;
+    }
+    .component-text {
+      width: 359px;
+      height: 40px;
+      text-align: left;
+      line-height: 45px;
+      padding-left: 19px;
+      background: url("@/assets/images/common/component-title-bg.png") no-repeat top left / auto 100%;
+    }
+  }
+  .component-box {}
+}
