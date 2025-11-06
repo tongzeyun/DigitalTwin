@@ -32,6 +32,29 @@
           </div>
         </div>
       </div>
+      <div class="btm">
+        <div class="btm_header">
+          <div style="display: flex;align-items: center;">
+            <img src="@/assets/images/device/arrow_r.png" />
+            <div class="tit">设备告警统计</div>
+          </div>
+          <!-- <div class="search">
+            <img src="@/assets/images/device/search.png" />
+            请搜索
+          </div> -->
+        </div>
+        <div class="btm_info">
+          <div class="btm_item" v-for="ele in warnList"> 
+            <div class="name">
+              {{ ele.tit }}
+            </div>
+            <div class="warn_img" >
+              <img :style="{width:`${ele.num / warnMax * 100}%`}" src="@/assets/images/device/warn_len.png"></img>
+            </div>
+            <div class="num">{{ ele.num }}</div>
+          </div>
+        </div>
+      </div>
     </div>
     <div class="device_r"></div>
   </div>
@@ -50,6 +73,14 @@ const statList = ref([
   {imgUrl:'/frtwin/src/assets/images/device/stat_7.png',normal:'3',damage:'',tit:'人脸识别录音电话'},
   {imgUrl:'/frtwin/src/assets/images/device/stat_8.png',normal:'350',damage:'',tit:'智能储物柜'},
 ])
+const warnList = ref([
+  {tit:'AI摄像头', num:'12' },
+  {tit:'移动智能终端', num:'5' },
+  {tit:'普通摄像头', num:'5' },
+  {tit:'人脸识别录音电话', num:'1' },
+])
+
+let warnMax = ref(Math.max(...warnList.value.map(item => item.num)))
 
 </script>
 
@@ -63,6 +94,9 @@ const statList = ref([
   justify-content: space-between;
   align-items: flex-start;
   z-index: 999;
+  box-sizing: border-box;
+  padding: 15px;
+
 }
 .device_l{
   width: 580px;
@@ -112,11 +146,13 @@ const statList = ref([
       align-items: center;
       .top_item{
         width: 50%;
+        height: 100px;
         display: flex;
         align-items: center;
-        justify-content: center;
+        justify-content: flex-start;
         box-sizing: border-box;
         padding: 15px;
+        margin-bottom: 10px;
         img{
           width: 93px;
           height: 70px;
@@ -144,6 +180,83 @@ const statList = ref([
           text-align: left;
           font-style: bold;
 
+        }
+      }
+    }
+  }
+  .btm{
+    width: 100%;
+    .btm_header{
+      width: 100%;
+      height: 45px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: YouSheBiaoTiHei;
+      font-size: 26px;
+      color: #FFFFFF;
+      line-height: 34px;
+      text-align: left;
+      background: radial-gradient( 15% 103% at 7% 83%, #004FB7 0%, rgba(47,67,135,0) 100%), linear-gradient( 181deg, rgba(0,57,135,0) 0%, #39BDFF 100%);
+      backdrop-filter: blur(9px);
+      box-sizing: border-box;
+      padding: 0 15px;
+      .search{
+        width: 70px;
+        height: 24px;
+        font-family: PingFangSC, PingFang SC;
+        font-weight: 500;
+        font-size: 12px;
+        color: #FFFFFF;
+        line-height: 17px;
+        background: url('@/assets/images/device/search_bg.png') no-repeat center;
+        display: flex;
+        align-items: center;
+        justify-content: space-around;
+        cursor: pointer;
+        img{
+          width: 14px;
+          height: 14px;
+        }
+      }
+    }
+    .btm_info{
+      width: 100%;
+      .btm_item{
+        width: 100%;
+        height: 44px;
+        background: url('@/assets/images/device/warn_bg.png') no-repeat center;
+        background-size: cover;
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        margin-top: 15px;
+        .name{
+          width: 130px;
+          font-size: 14px;
+          font-family: PingFangSC, PingFang SC;
+          line-height: 20px;
+          text-align: left;
+          margin-left: 28px;
+        }
+        .warn_img{
+          height: 22px;
+          display: flex;
+          justify-content: flex-start;
+          img{
+            // width: 100%;
+            height: 100%;
+            // object-fit: contain;
+          }
+        }
+        .num{
+          margin-left: 20px;
+          font-family: PingFangSC, PingFang SC;
+          font-weight: 600;
+          font-size: 18px;
+          color: #FFFFFF;
+          line-height: 25px;
+          text-align: right;
         }
       }
     }
