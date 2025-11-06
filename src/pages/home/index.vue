@@ -1,78 +1,15 @@
-<!--
- * @Description: 
- * @Author: YiFan Zhang
- * @LastEditors: YiFan Zhang
- * @LastEditTime: 2025-09-23 09:12:59
--->
 <template>
   <div class="digital-twin-container">
     <div class="header-section" style="display: none;">
       <!-- <h1>三维数字孪生园区展示</h1> -->
-<!-- 	 <el-button @click="toDigital">原点</el-button> -->
-	 <!-- 
-	  <div class="pos">
-	      <div id="A" class="bu">立方体016</div>
-	      <div id="B" class="bu" style="margin-left: 10px;">立方体032</div>
-	      <div id="car" class="bu" style="margin-left: 10px;">立方体042</div>
-	      <div id="all" class="bu" style="margin-left: 10px;">整体</div>
-	  </div> -->
-      <!-- 点击跳转到陶然楼第一层 -->
-      <!-- <router-link to="/trfirst">陶然楼第一层</router-link> -->
-      <!-- 点击跳转到陶然楼第二层 -->
-      <!-- <router-link to="/trsecond">陶然楼第二层</router-link> -->
-      <!-- 点击跳转到陶然楼第三层 -->
-      <!-- <router-link to="/trthird">陶然楼第三层</router-link> -->
-      <!-- 点击跳转到陶然楼第四层 -->
-      <!-- <router-link to="/trfourth">陶然楼第四层</router-link> -->
-      <!-- 点击跳转到陶然楼第五层 -->
-      <!-- <router-link to="/trfifth">陶然楼第五层</router-link> -->
-
       <div class="action-buttons">
-        <!-- <loadText/> -->
+		  {{worldSignalPos}}
       </div>
     </div>
 
     <!-- 三维渲染容器 -->
     <div class="three-container">
       <div id="model-container" ref="modelContainer"></div>
-
-      <!-- 模型控制信息 -->
-      <!-- <div class="model-info" v-if="modelLoaded">
-        <p>园区模型加载完成</p>
-        <p>使用鼠标拖动: 旋转视角</p>
-        <p>使用鼠标滚轮: 缩放视图</p>
-        <p>使用鼠标右键: 平移视图</p>
-        <p>使用鼠标左键: 点击模型调整材质</p>
-      </div> -->
-
-      <!-- 材质调整控制面板 -->
-      <!-- <div class="material-controls" v-if="selectedObject">
-        <h4>材质调整 - {{ selectedObjectName }}</h4>
-        <div class="control-group">
-          <label>颜色:</label>
-          <span>{{ selectedMaterialColor }}</span>
-          <input type="color" v-model="selectedMaterialColor" @change="updateSelectedMaterial" />
-        </div>
-        <div class="control-group">
-          <label>透明度:</label>
-          <input type="range" min="0" max="1" step="0.01" v-model="selectedMaterialOpacity"
-            @input="updateSelectedMaterial" />
-          <span>{{ Math.round(selectedMaterialOpacity * 100) }}%</span>
-        </div>
-        <div class="control-group">
-          <label>粗糙度:</label>
-          <input type="range" min="0" max="1" step="0.01" v-model="selectedMaterialRoughness"
-            @input="updateSelectedMaterial" />
-          <span>{{ Math.round(selectedMaterialRoughness * 100) }}%</span>
-        </div>
-        <div class="control-group">
-          <label>金属度:</label>
-          <input type="range" min="0" max="1" step="0.01" v-model="selectedMaterialMetalness"
-            @input="updateSelectedMaterial" />
-          <span>{{ Math.round(selectedMaterialMetalness * 100) }}%</span>
-        </div>
-        <el-button @click="resetSelectedMaterial">重置材质</el-button>
-      </div> -->
       <div class="loading-indicator" v-if="showLoadingIndicator">
         <h3>正在加载园区模型...</h3>
         <el-progress :percentage="loadingProgress" :stroke-width="20" :text-inside="true"></el-progress>
@@ -83,7 +20,7 @@
 </template>
 
 <script setup>
-import * as lib from 'gimp-tools'
+// import * as lib from 'gimp-tools'
 import { fetchPosts } from '@/api/user'
 
 // 导入Three.js核心库和相关模块
@@ -91,21 +28,43 @@ import * as THREE from 'three'
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js'
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
 import { RGBELoader } from 'three/addons/loaders/RGBELoader.js'
-import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';// 引入CSS2渲染器CSS2DRenderer和CSS2模型对象CSS2DObject 
-import { CSS3DRenderer, CSS3DObject } from 'three/addons/renderers/CSS3DRenderer.js';// 引入CSS3渲染器CSS3DRenderer
-import { AnimationMixer, AnimationAction } from 'three';
+import { CSS2DRenderer } from 'three/addons/renderers/CSS2DRenderer.js';// 引入CSS2渲染器CSS2DRenderer和CSS2模型对象CSS2DObject 
+// import { CSS3DRenderer, CSS3DObject } from 'three/addons/renderers/CSS3DRenderer.js';// 引入CSS3渲染器CSS3DRenderer
+// import { AnimationMixer, AnimationAction } from 'three';
 // import { AnimationMixer, AnimationAction } from 'three/addons/animation/AnimationMixer.js';
 import { createLabel } from '@/utils/SpriteThree'; //标签
 import DeviceSpriteDom from '@/utils/device'; // 精灵DOM类
 
 // Vue响应式数据
 import { ref, onMounted, onUnmounted } from 'vue'
-import router from '@/router'
-import { log } from 'three/tsl'
 
+// import { log } from 'three/tsl'
+const container = ref(null)
 import TWEEN from '@tweenjs/tween.js'
-import loadText from '../textEchartsAll/loadText.vue'
-// import player from "./js/player.js"; //注意路径
+// import loadText from '../textEchartsAll/loadText.vue'
+// import {
+// 		DragControls
+// 	} from "three/examples/jsm/controls/DragControls"; //拖拽控件
+// 	import {
+// 		TransformControls
+// 	} from "three/examples/jsm/controls/TransformControls"; //可视化平移控件
+// import { Model } from 'echarts'
+import { labelList} from "./js/labelList";
+import { useHookOne ,useHookTwo } from './hooks/hooksIndex.js'
+// let splineHelperObjects = []
+// let transformControl =ref(null)
+// const containerFK = ref(null)
+// const point = new THREE.Vector3()
+const raycaster = new THREE.Raycaster()
+  const mouse = new THREE.Vector2()
+// import{DRACOLoader}from "three/examples/jsm/loaders/DRACOLoader.js"  //解码打开压缩模型所用
+// npm install -g gltf-pipeline
+// gltf-pipeline -i area-test.glb -o yasuo-area-test.glb -d -k 10 
+//前往根目录压缩3d文件
+// -i input_model.glb：指定要压缩的原始模型文件。
+// -o output_model.glb：指定输出压缩后的模型文件。
+// -d：启用 Draco 压缩。
+// -k 10：设置 Draco 压缩的最大级别（0-10，10 为最大压缩）
 
 // 模型状态
 const modelContainer = ref(null)
@@ -131,93 +90,14 @@ const nameLabels = new Map()
 // let mixer: AnimationMixer; // 动画混合器（管理模型所有动画）
 // let camera: THREE.PerspectiveCamera | THREE.OrthographicCamera; // 模型内置摄像机
 // Three.js场景相关变量
-let scene, camera, renderer, controls, loader, labelRenderer, mixer // 动画混合器
+let scene, camera, renderer, controls, loader, labelRenderer, mixer,controlsFK // 动画混合器
 let clock // 时钟，用于动画更新
 let worldSignalPos //坐标
 // 动画存储
 const animations = new Map() // 存储每个对象的动画动作
 
-// 标签数组
-const labelList = [
-  // {
-  //   color: "#eef0a7",
-  //   name: "陶然楼",
-  //   value: "陶然楼一层",
-  //   position: { x: 140, y: -2, z: 50 },
-  //   scale: 1,
-  //   route: '/trfirst'  // 添加路由信息
-  // },
-  // {
-  //   color: "#eef0a7",
-  //   name: "陶然楼",
-  //   value: "陶然楼二层",
-  //   position: { x: 140, y: 2, z: 50 },
-  //   scale: 1,
-  //   route: '/trsecond'  // 添加路由信息
-  // },
-  // {
-  //   color: "#eef0a7",
-  //   name: "陶然楼",
-  //   value: "陶然楼三层",
-  //   position: { x: 140, y: 6, z: 50 },
-  //   scale: 1,
-  //   route: '/trthird'  // 添加路由信息
-  // },
-  // {
-  //   color: "#eef0a7",
-  //   name: "陶然楼",
-  //   value: "陶然楼负一层",
-  //   position: { x: 140, y: -5, z: 50 },
-  //   scale: 1,
-  //   route: '/trfourth'  // 添加路由信息
-  // },
-  // {
-  //   color: "#eef0a7",
-  //   name: "陶然楼",
-  //   value: "陶然楼五层",
-  //   position: { x: 140, y: 10, z: 50 },
-  //   scale: 1,
-  //   route: '/trfifth'  // 添加路由信息
-  // },
-  {
-    color: "#eef0a7",
-    name: "陶然楼",
-    value: "陶然楼",
-    position: { x: 100, y: 10, z: 35 },
-	pos: { x:115, y: 6, z: 70 },
-	pos2: { x:115, y: 10, z:85},   
-    scale: 1,
-  },
-  {
-    color: "#eef0a7",
-    name: "综合楼",
-    value: "综合楼",
-    position: { x: 30, y: 6, z: 40 },
-	pos: { x:25, y: 10, z: 50 },
-	pos2: { x:28, y: 20, z: 75 },
-    scale: 1,
-  },
-  {
-    color: "#eef0a7",
-    name: "聚德楼",
-    value: "聚德楼",
-    position: { x: -80, y: 6, z: 10 },
-	pos: { x:-80, y: 6, z: 30 },
-	pos2: { x:-40, y: 30, z: 30 },
-    scale: 1,
-  },{
-    color: "#eef0a7",
-    name: "保宁苑泳池",
-    value: "保宁苑泳池",
-    position: { x: -70, y: 6, z: 50 },
-	pos: { x:-70, y: 6, z: 70 },
-	pos2: { x:-30, y: 30, z: 10 },
-    scale: 1,
-    // route: '/trfifth'  // 添加路由信息
-  },
 
-];
-let newStr,num;
+let newStr,louName,num,dianji;
 let newArr = [];
 // 创建模型名称标签
 function createNameLabel(object) {
@@ -428,6 +308,7 @@ function initThreeScene() {
 
   // 开始渲染循环
   animate()
+  	
 }
 
 // 加载HDR环境贴图
@@ -459,36 +340,71 @@ async function loadGLBModel() {
     }
 
 
+
+
+// gltf-pipeline -i 5.glb input_model.glb -o 51yasuo.glb -d -k 10 
     // 加载GLB模型
     loader = new GLTFLoader()
-// '/frtwin/area-test.glb',/frtwin/trl-model/b1b2/b1b2.glb
-    // 设置加载进度回调
-	  loader.load('/frtwin/area-test.glb',
-    //loader.load('/frtwin/trl-model/b1b2/b1b2.glb',
+	 // // 创建加载器
+	
+	// 	const dracoLoader = new DRACOLoader();
+		
+	// 	dracoLoader.setDecoderPath('./gltfdraco/'); //这个路径是放draco_decoder.js这个文件的
+	// 	dracoLoader.setDecoderConfig({ type: 'js' });
+	// 	dracoLoader.preload();
+	// 	loader.setDRACOLoader(dracoLoader);
+	
+	
+	
+	//   const dracoloader=new DRACOLoader()//用于加载 DRACO 压缩 格式的模型
+	//   dracoloader.setDecoderPath('./gltfdraco/')//设置解码器的路径
+	//   // dracoLoader.setDecoderPath('./gltfdraco/'); //这个路径是放draco_decoder.js这个文件的
+	//   	// dracoLoader.setDecoderConfig({ type: 'js' });
+	//   dracoloader.preload()//提前加载解码器，确保解码器在加载模型时已准备好
+	//   console.log(dracoloader,'sssssss')
+	//   // loader.setPath('/frtwin/'); //指定了加载路径后，加载器将从此路径开始查找模型。
+	//   loader.setDRACOLoader(dracoloader)  //将 DRACOLoader 与 GLTFLoader 关联起来，使得加载器能识别并正确解码 DRACO 压缩过的模型。
+	// 	console.log(loader,'loader')
+ //    // 设置加载进度回调
+	  // loader.load('/frtwin/trl-model/5/51yasuo.glb',//  loader.load('/frtwin/yasuo-area-test.glb',
+    // loader.load('/frtwin/trl-model/b1b2/b1b2.glb', //yasuo-area-test.glb
+	loader.load('/frtwin/area-test.glb',///frtwin/all-area-test.glb
       (gltf) => {
         // 处理加载完成的模型
+	
         model = gltf.scene
         scene.add(model)
-		console.log(scene)
+		
         gltfs = gltf;
+        
         // 居中模型
         centerModel(model)
+        model.rotateY(-Math.PI/18.2); //根据真实地图方向调整
 
         try {
-          AddLabels(); //加载标签 
+          AddLabels(0); //加载标签 
         } catch (error) {
           console.error('加载标签失败:', error)
         }
+		// model.rotation.x=-10//模型旋转10度，对其地图坐标x值
 		
         // 存储原始材质并设置阴影属性
-        model.traverse((child) => {
+        model.traverse((child,i) => {
           if (child.isMesh && child.material) {
-			
+			  
+			  // if(child.name.indexOf('taoran_f5') !==-1){
+				 //  console.log(child,'ssqqqqq')
+			  // }
+				// child.children[8].children[i].material.color={isColor: true, r: 1, g: 0.9, b: 0.4}
 		
 				// 从新给材质命名=》为了分层 =》取名：当没有楼层名，取parent,有的动画存在userData里，要改指定类型名，不然动画会失效
 			  	if(child.name.indexOf('_t') === -1 ||child.name.indexOf('_f') === -1 ){ //未查到，楼层，楼顶名称
 			  		// if(child.parent.name.indexOf('_t') !== -1 || child.parent.name.indexOf('_f') !== -1){ //父类名称找到并包含楼层楼顶,有的嵌套3层，不用加这判断
 			  			child.name = child.parent.name
+						
+						// if(child.name.indexOf('taoran_f5') !==-1){
+						// 	child.children[i].material.color={isColor: true, r: 1, g: 0.9, b: 0.4}
+						// }
 						// if(child.userData.name=='judelou f2 windows'){
 						// 	// child.name="judelou_f2_windows"
 						// 	let name = child.userData.name
@@ -510,7 +426,7 @@ async function loadGLBModel() {
 						}
 			  		// }
 			  	}
-	
+			
 				// child.traverse((item) => {
 				//    if (item.isMesh && item.material) {
 				
@@ -550,43 +466,6 @@ async function loadGLBModel() {
                 metalness: child.material.metalness || 0.5
               })
             }
-			
-			
-   //          // 默认为名称为'玻璃'的对象设置默认材质属性****
-   //          if (child.name === '玻璃001' || child.name === '玻璃002' || child.name === '玻璃004' && !Array.isArray(child.material)) {
-   //            child.material.color.set(0x55739f)
-   //            child.material.opacity = 0.8
-   //            child.material.roughness = 0.5
-   //            child.material.metalness = 0.5
-   //            child.material.transparent = true
-   //          }
-   //          // 玻璃001 材质 
-   //          if (child.name === '玻璃003' || child.name === 'Rectangle468003' && !Array.isArray(child.material)) {
-   //            // child.material.color.set(0x2d8b7b)
-
-   //            child.material.color.set(0x8dacd4)
-   //            child.material.opacity = 0.8
-   //            child.material.roughness = 0.5
-   //            child.material.metalness = 0.5
-
-   //            child.material.transparent = true     //  // 确保材质支持透明度
-   //          }
-
-
-
-
-            // 白膜材质 立方体007_2
-            // if (child.name === '立方体007' || child.name === '立方体031' || child.name === '立方体050' && !Array.isArray(child.material)) {
-            //   child.material.color.set(0xeeeeee)
-            //   child.material.opacity = 1
-            //   child.material.roughness = 0
-            //   child.material.metalness = 0.5
-            //   // 确保材质支持透明度
-            //   child.material.transparent = false
-            // }
-
-
-
           }
 		
         })
@@ -620,10 +499,11 @@ async function loadGLBModel() {
 
 //动画函数 
 function loadAnimation(type) {
+
   if (gltfs.animations && gltfs.animations.length > 0) {
     
-    console.log('模型包含动画数:', gltfs.animations.length)
-    console.log('模型包含动画:', gltfs)
+    // console.log('模型包含动画数:', gltfs.animations.length)
+    // console.log('模型包含动画:', gltfs)
     let anis = [];  //存储 动画
 	mixer = new THREE.AnimationMixer(model)
 	switch(type){
@@ -635,59 +515,64 @@ function loadAnimation(type) {
 				anis = gltfs.animations.slice(9, 35);
 				break;
 			case "djl":
-				anis = gltfs.animations.slice(35,66);
+				anis = gltfs.animations.slice(35,55);
+				let anis2 =gltfs.animations.slice(65,66)
+				anis.concat(anis2)
 				break;
 			case "YYG"://console.log('网格的动画，所有');
 				anis = gltfs.animations.slice(55,65);
 				break;
 			case "all"://console.log('播放门岗模型的动画，所有');
-				anis = gltfs.animations.slice(0,66);
+				anis = gltfs.animations.slice(0,);
 				break;
 			
 			// default:
 	}
 	
 	let playStatic
-	
-	
 
 	newArr = ['trl','zhlou','djl','YYG','all']
 	if (newStr && newStr !== type && newArr.indexOf(type) !== -1) { //存在并且不相等，先关闭其他模型,并且房顶才能关闭
 		 	let anis2 = gltfs.animations.slice(0,);
 		 	num=-1	
+      //  AddLabels(0) //添加楼层标签
 			playAnimation(anis2,num)
 			newStr = type
 			num=1
+
 			playAnimation(anis,num)
+     
 			newStr = type
 	}else if (!newStr) {
 		 	num=1	
-		 	playAnimation(anis,num)
 			newStr = type
+    
+		 	playAnimation(anis,num)
+ 
+			// console.log('sssssssssss2',newStr,num,type)
 	}else if (newStr == type && newArr.indexOf(type) !== -1) { 
 				if(num==1){  //重复点击同一个
 					let anis2 = gltfs.animations.slice(0,);
 					num=-1	
+          // AddLabels(0) //添加楼层标签
 					playAnimation(anis2,num)
 				}else{
 					num=1
+
 					playAnimation(anis,num)
+     
 				}
 				newStr = type 
 	}
-	
-	
-			
-		// if (newArr.indexOf(type) === -1) {
-		// 	 	newArr.push(type);
-		// 		// playStatic=true
-		// 		  num=1
-		// }else{
-		// 		newArr=newArr.filter(item=>item != type)
-		// 		// playStatic=false
-		// 		   num=-1
-		// } 
-		
+
+	  if(num==1 && !louName && newArr.indexOf(type) !== -1){ //只能点击楼顶关闭楼层
+		DelLabels(0)
+	  }
+	  // console.log('sssssdfg-111111',num,louName)
+	  // if(num==-1 && !louName && newArr.indexOf(type) !== -1){ //只能点击楼顶关闭楼层
+	  // 		AddLabels(0)
+	  // }
+
   }
 }
 
@@ -703,9 +588,7 @@ function playAnimation(anis,num){
 	  
 	// console.log('sssss1',newArr,playStatic); // 结果：
 	  activeAction.clampWhenFinished = true;//playStatic;
-	  
 	  // 存储动画动作
-	 
 	  activeAction.play();
 	})
 }
@@ -730,7 +613,7 @@ function render() {
 	// const pos = new THREE.Vector3();
 	// //获取三维场景中某个对象世界坐标
 	// model.getObjectByName(chooseObj.name+'标注').getWorldPosition(pos); 
-	
+
 	
     TWEEN.update(); //循环已有 animate 放到 animate
 }
@@ -790,15 +673,17 @@ function keyUp(event) {
 // 将模型位置设置在原点
 function centerModel(model) {
   // 直接将模型位置设置为原点(0, 0, 0)
-  model.position.set(0, 0, 0)
+			model.position.set(0, 0, 0)
 }
+
+
 
 // 添加点击事件监听
 function addClickEventListener() {
-  const raycaster = new THREE.Raycaster()
-  const mouse = new THREE.Vector2()
+	
 
 	function onMouseClick(event) {
+	
     // 计算鼠标在标准化设备坐标中的位置
     const rect = renderer.domElement.getBoundingClientRect()
     mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1
@@ -809,92 +694,57 @@ function addClickEventListener() {
 	// model.visible=false
     // 计算与射线相交的对象
     const intersects = raycaster.intersectObjects(scene.children, true)
-
+	
     if (intersects.length > 0) {
       const object = intersects[0].object
       //检测鼠标点击交点
        worldSignalPos = intersects[0].point; // 射线与地面的交点（世界坐标）
-		console.log('鼠标点击交点坐标:',intersects,object.name,worldSignalPos,newStr,num)
-		
+		console.log('鼠标点击交点坐标:',worldSignalPos)
+
+
+    
+		const objectName =object.name
 		if(num==1){ //陶打开才能运行
-				if(newStr==="trl"){//陶然楼
-					// cameraTween(120,3,40,120,44,40) //indexTS.vue 可用此文件调试坐标
-				   if(object.name === 'taoran_f5'){ //第五层
-								visibleFalse('taoran_f5')
-				   }else if(object.name === 'taoran_f3'){ // 第三层
-								visibleFalse('taoran_f3')
-				   }else if(object.name === 'taoran_f2'){ //第二层
-								visibleFalse('taoran_f2')
-				   }else if(object.name === 'taoran_f1'){ //第一层
-								visibleFalse('taoran_f1')
-				   }
-				}
-			if(newStr==="zhlou"){//综合楼
-					// cameraTween(22,10,37,22,55,37) //indexTS.vue 可用此文件调试坐标
-			  if(object.name.indexOf('zonghelou_f3')!==-1){ // 第三层
-			  					visibleFalse('zonghelou_f3')
-			  }else if(object.name.indexOf('zonghelou_f2')!==-1 || object.name.indexOf('zonghelouf2')!==-1){ //第二层
-								visibleFalse('zonghelouf2')
-			  }else if(object.name.indexOf('zonghelou_f1')!==-1){ //第一层
-			  					visibleFalse('zonghelou_f1')
-			  }
-			}
-			if(newStr==="YYG"){//
-					// cameraTween(-60,3,45,-60,40,43) //indexTS.vue 可用此文件调试坐标
-			  if(object.name.indexOf('youyonguan_f2')!==-1){ //第二层//baoningyuan_youyonguan
-					visibleFalse("youyonguan_f2")
-			  }else if(object.name.indexOf('youyonguan_f1')!==-1){ //第一层
-			  		visibleFalse("youyonguan_f1")
-			  }
-			}
-			if(newStr==="djl"){//
-			  if(object.name.indexOf('judelou_f3')!==-1){ //第3层
-					visibleFalse("judelou_f3")
-			  }else if(object.name.indexOf('judelou_f2')!==-1){ //第2层
-			  		visibleFalse("judelou_f2")
-			  }else if(object.name.indexOf('judelou_f1')!==-1){ //第1层
-			  		visibleFalse("judelou_f1")
-			  }
-			}
-		
+      
+      let all = {
+        labelList,
+        newStr,
+        objectName,
+        visibleFalse,//hooks需要调用的方法
+        cameraTween
+      } 
+      const { HookFun1 } = useHookOne({ all })
+	  if(object.visible && object.material.visible){
+	  		 HookFun1()
+	  }
+      
+      
+      
+		}else{
+			louName=''
 		}
-      // 地面
-      if(object.name === 'Scene' || object.name.indexOf('ground')!==-1){
-		  // console.log('11111111111',object.name )
-		visibleReply()
-      }
+//       // 地面
+//       if(object.name === 'Scene' || object.name.indexOf('ground')!==-1){
+// 		  // console.log('11111111111',object.name )/const labelList = [
+// // {
+// //     color: "#eef0a7",
+// //     name: "陶然楼",
+// //     value: "陶然楼",
+// //     position: { x: 100, y: 10, z: 35 },
+// // 	pos: { x:115, y: 6, z: 70 },
+// // 	pos2: { x:115, y: 10, z:85},   
+// //     scale: 1,
+// //   },
+
+//       }
 
       ///888888888888888  控制动画//
-      let aniType = ''; // 动画类型
-      
-	  switch(object.name){
-		    
-	  		case "taoran__top"://console.log('播放陶然楼模型的动画');
-	  			aniType = 'trl';
-	  		break;
-	  		case "zonghelou_top006"://console.log('播放综合楼的动画');
-	  			aniType = 'zhlou';
-	  			break;
-	  		case "zonghelou_top007"://console.log('播放综合楼的动画');
-	  			aniType = 'zhlou';
-	  			break;
-	  		case "judelou_f3_top":
-	  			aniType = 'djl';
-	  			break;
-	  		case  "judelou_f2_top001":
-	  			aniType = 'djl';
-	  			break;
-	  		case "baoningyuan_youyonguan_f3_top001":
-	  			aniType = 'YYG';
-	  			break;
-	  		case "youyonguan_top":
-	  			aniType = 'YYG';
-	  			break;
-	  		case "menwei002"://console.log('播放门岗模型的动画，所有');
-	  			aniType = 'all';
-	  			break;
-	  		// default:
-	  	 }
+
+     
+      const { aniType } = useHookTwo({ objectName })
+     
+      // console.log('sssss123',aniType,objectName,object.name)
+    
 	 loadAnimation(aniType);
 	  
       //888888888888888//
@@ -903,7 +753,7 @@ function addClickEventListener() {
       if (object.isMesh && object.material) {
         selectedObject.value = object
 		// 
-        console.log('选中的材质对象名称:',object, object.name)
+        // console.log('选中的材质对象名称:',object, object.name)
         selectedObjectName.value = object.name
 
         // 创建并显示模型名称标签
@@ -917,29 +767,11 @@ function addClickEventListener() {
         // 将对象设置为黄色
         if (Array.isArray(object.material)) {
           object.material.forEach(material => {
-            // material.color.set(0xffff00) // 黄色
+            material.color.set(0xffff00) // 黄色
           })
         } else {
           // object.material.color.set(0xffffff) // 黄色
         }
-
-        // 添加到动画对象列表***
-
-        // if (!animatingObjects.value.includes(object)) {
-        //   // 如果模型名称为立方体076_1，播放其动画
-        //   if (object.name === '立方体076_1') {
-
-        //     // 播放整个动画
-        //      actions.play();
-        //      console.log('播放整个模型的动画',actions);
-
-        //   }
-
-        //   // 添加到动画对象列表
-        //   // animatingObjects.value.push(object)
-        // }
-
-
         // 更新材质控制面板的值
         if (Array.isArray(object.material)) {
           // 处理多材质情况，这里简单处理第一个材质
@@ -988,34 +820,105 @@ function addClickEventListener() {
 
   renderer.domElement.addEventListener('click', onMouseClick)
 }
+function visibleFalse(name, louName1){
+		model.traverse((child) => {
+		    if (child.isMesh && child.material) {
+				 if(child.name.indexOf(name)!==-1 && child.name.indexOf('_top')===-1){ //模糊匹配xx_fx(楼层名)，并且楼层名里不包含_top(屋顶)
+					// console.log(child.name,'ss	qqqqqqqqqs',name.objectName,name)
+				 		child.material.visible=true
+				 		child.visible=true
+				 }else{
+				 		child.material.visible=false
+				 		child.visible=false
+				 }
+				 child.material.visible=true 
+				 
+				
+			}
+		})
+		// console.log('重复点击1',louName1,name,num,louName)
+		if(louName !== louName1){
+			louName = louName1
+			AddLabels(1)  //创建关闭标签
+      
+		}
+		// const tempLabel = scene.children.find(t =>t.name == louName)
+		// Object3DName('kai')
+}
+// function Object3DName(name){
+// 	// scene.children.map((t) =>{
+// 	// 	if(t.name == louName && name ==='kai'){
+// 	// 			t.name ='关闭'
+// 	// 	}
+// 	// 	 if(t.name ==='关闭' && name ==='guan'){
+// 	// 		 t.name = louName
+// 	// 	 }
+// 	// })
+	
+// }
+function visibleReply(){  //回归最初状态
+		// Object3DName('guan')
+	
+		model.traverse((child) => { //所有材质显示
+		    if (child.isMesh && child.material) {
+				child.material.visible=true
+				child.visible=true
+			}
+		})
+		if(num>-1){ //
+			newStr=''
+			let anis2 = gltfs.animations.slice(0,);
+			num=-1	
+			playAnimation(anis2,num) //房间闭合
+
+		}
+    louName=''
+    AddLabels(0) //显示楼房名字
+}
+const AddLabels = (obj) => {
+        DelLabels(1)
+		    DelLabels(0)
+    let labelList2 = labelList
+	if(louName && obj=='1'){
+		let tempLabel2 = labelList2.find(t => t.name == louName)
+		labelList2=[tempLabel2]
+	}
+  AddLabelsAll(obj,labelList2)
+}
+
+//卸载标签
+const DelLabels = (obj) => {
+      DelLabelsAll(obj)
+}
 
 
-//加载标签
-const AddLabels = () => {
-  console.log('加载标签。。。')
-  labelList.forEach((label) => {
-    const labelElement = new DeviceSpriteDom(label.color, label.value).getElement();
-
+ 
+  const AddLabelsAll = (obj,labelList2) => {
+  let name=''//加载标签
+  labelList2.forEach((label) => {
+	  name=label.name
+	if(louName && obj=='1'){
+		name = '关闭'
+	}
+    const labelElement = new DeviceSpriteDom(label.color, name).getElement();
     // 为标签添加点击事件处理
     labelElement.style.cursor = 'pointer'; // 显示手型光标
     labelElement.style.pointerEvents = 'auto'; // 允许标签响应鼠标事件
+	// console.log(labelElement)
     labelElement.onclick = (event) => {
       event.stopPropagation(); // 阻止事件冒泡
       if (label.route) {
-        console.log(`跳转到路由: ${label.route}`);
         // 使用window.location.href进行跳转
         // window.location.href = '/frtwin'+ label.route;
         // 使用vue3 导航式路由跳转
         router.push(label.route)
       }else{
-		  console.log(`1111: ${label}`,label);
-		  
-		  cameraTween(label.pos.x,label.pos.y,label.pos.z,label.pos2.x,label.pos2.y,label.pos2.z)
-	  }
+		    visibleReply()//恢复状态
+		    cameraTween(label.pos.x,label.pos.y,label.pos.z,label.pos2.x,label.pos2.y,label.pos2.z)
+	    }
     };
-
     const box = createLabel({
-      name: label.name,
+      name: name,
       type: "CSS2DObject",
       element: labelElement,
     });
@@ -1024,47 +927,53 @@ const AddLabels = () => {
     scene.add(box);
   });
 };
+
 //卸载标签
-const DelLabels = () => {
+const DelLabelsAll = (obj) => {
+	 let name=''
+   // console.log(labelList)
   labelList.forEach((label) => {
-    const tempLabel = scene.children.find(t => t.name == label.name)
+	    name=label.name
+	  	if(obj=='1'){
+	  		name = '关闭'
+	  	}
+    const tempLabel = scene.children.find(t => t.name == name)
     if (tempLabel != null && tempLabel != 'undefined') {
       scene.remove(tempLabel)
     }
   })
-
 }
 
 
 
-// 更新选中对象的材质
-function updateSelectedMaterial() {
-  if (!selectedObject.value || !selectedObject.value.material) return
+// // 更新选中对象的材质
+// function updateSelectedMaterial() {
+//   if (!selectedObject.value || !selectedObject.value.material) return
 
-  if (Array.isArray(selectedObject.value.material)) {
-    // 处理多材质情况，这里简单处理第一个材质
-    const material = selectedObject.value.material[0]
-    material.color.set(selectedMaterialColor.value)
-    material.opacity = selectedMaterialOpacity.value
-    if (material.roughness !== undefined) {
-      material.roughness = selectedMaterialRoughness.value
-    }
-    if (material.metalness !== undefined) {
-      material.metalness = selectedMaterialMetalness.value
-    }
-  } else {
-    // 处理单材质情况
-    const material = selectedObject.value.material
-    material.color.set(selectedMaterialColor.value)
-    material.opacity = selectedMaterialOpacity.value
-    if (material.roughness !== undefined) {
-      material.roughness = selectedMaterialRoughness.value
-    }
-    if (material.metalness !== undefined) {
-      material.metalness = selectedMaterialMetalness.value
-    }
-  }
-}
+//   if (Array.isArray(selectedObject.value.material)) {
+//     // 处理多材质情况，这里简单处理第一个材质
+//     const material = selectedObject.value.material[0]
+//     material.color.set(selectedMaterialColor.value)
+//     material.opacity = selectedMaterialOpacity.value
+//     if (material.roughness !== undefined) {
+//       material.roughness = selectedMaterialRoughness.value
+//     }
+//     if (material.metalness !== undefined) {
+//       material.metalness = selectedMaterialMetalness.value
+//     }
+//   } else {
+//     // 处理单材质情况
+//     const material = selectedObject.value.material
+//     material.color.set(selectedMaterialColor.value)
+//     material.opacity = selectedMaterialOpacity.value
+//     if (material.roughness !== undefined) {
+//       material.roughness = selectedMaterialRoughness.value
+//     }
+//     if (material.metalness !== undefined) {
+//       material.metalness = selectedMaterialMetalness.value
+//     }
+//   }
+// }
 
 // 重置特定对象的材质
 function resetObjectMaterial(object) {
@@ -1102,56 +1011,56 @@ function resetObjectMaterial(object) {
   }
 }
 
-// 重置选中对象的材质
-function resetSelectedMaterial() {
-  if (!selectedObject.value || !selectedObject.value.material) return
+// // 重置选中对象的材质
+// function resetSelectedMaterial() {
+//   if (!selectedObject.value || !selectedObject.value.material) return
 
-  if (Array.isArray(selectedObject.value.material)) {
-    // 处理多材质情况
-    selectedObject.value.material.forEach((material, index) => {
-      const original = originalMaterials.get(`${selectedObject.value.uuid}-${index}`)
-      if (original) {
-        material.color.set(original.color)
-        material.opacity = original.opacity
-        if (material.roughness !== undefined) {
-          material.roughness = original.roughness
-        }
-        if (material.metalness !== undefined) {
-          material.metalness = original.metalness
-        }
-      }
-    })
+//   if (Array.isArray(selectedObject.value.material)) {
+//     // 处理多材质情况
+//     selectedObject.value.material.forEach((material, index) => {
+//       const original = originalMaterials.get(`${selectedObject.value.uuid}-${index}`)
+//       if (original) {
+//         material.color.set(original.color)
+//         material.opacity = original.opacity
+//         if (material.roughness !== undefined) {
+//           material.roughness = original.roughness
+//         }
+//         if (material.metalness !== undefined) {
+//           material.metalness = original.metalness
+//         }
+//       }
+//     })
 
-    // 更新控制面板的值
-    const original = originalMaterials.get(`${selectedObject.value.uuid}-0`)
-    if (original) {
-      selectedMaterialColor.value = original.color
-      selectedMaterialOpacity.value = original.opacity
-      selectedMaterialRoughness.value = original.roughness
-      selectedMaterialMetalness.value = original.metalness
-    }
-  } else {
-    // 处理单材质情况
-    const original = originalMaterials.get(selectedObject.value.uuid)
-    if (original) {
-      const material = selectedObject.value.material
-      material.color.set(original.color)
-      material.opacity = original.opacity
-      if (material.roughness !== undefined) {
-        material.roughness = original.roughness
-      }
-      if (material.metalness !== undefined) {
-        material.metalness = original.metalness
-      }
+//     // 更新控制面板的值
+//     const original = originalMaterials.get(`${selectedObject.value.uuid}-0`)
+//     if (original) {
+//       selectedMaterialColor.value = original.color
+//       selectedMaterialOpacity.value = original.opacity
+//       selectedMaterialRoughness.value = original.roughness
+//       selectedMaterialMetalness.value = original.metalness
+//     }
+//   } else {
+//     // 处理单材质情况
+//     const original = originalMaterials.get(selectedObject.value.uuid)
+//     if (original) {
+//       const material = selectedObject.value.material
+//       material.color.set(original.color)
+//       material.opacity = original.opacity
+//       if (material.roughness !== undefined) {
+//         material.roughness = original.roughness
+//       }
+//       if (material.metalness !== undefined) {
+//         material.metalness = original.metalness
+//       }
 
-      // 更新控制面板的值
-      selectedMaterialColor.value = original.color
-      selectedMaterialOpacity.value = original.opacity
-      selectedMaterialRoughness.value = original.roughness
-      selectedMaterialMetalness.value = original.metalness
-    }
-  }
-}
+//       // 更新控制面板的值
+//       selectedMaterialColor.value = original.color
+//       selectedMaterialOpacity.value = original.opacity
+//       selectedMaterialRoughness.value = original.roughness
+//       selectedMaterialMetalness.value = original.metalness
+//     }
+//   }
+// }
 
 // 窗口大小变化处理
 function onWindowResize() {
@@ -1167,29 +1076,7 @@ function onWindowResize() {
   renderer.setSize(width, height)
   labelRenderer.setSize(width, height);
 }
-function visibleFalse(name){
-		model.traverse((child) => {
-		    if (child.isMesh && child.material) {
-				 if(child.name.indexOf(name)!==-1 && child.name.indexOf('_top')===-1){ //模糊匹配xx_fx(楼层名)，并且楼层名里不包含_top(屋顶)
-				 		child.material.visible=true
-				 		child.visible=true
-				 }else{
-				 		child.material.visible=false
-				 		child.visible=false
-				 }
-				 child.material.visible=true 
-			}
-		})
-}
-function visibleReply(){
-		model.traverse((child) => {
-		    if (child.isMesh && child.material) {
-				child.material.visible=true
-				child.visible=true
-			}
-		})
-	
-}
+
 // 动画循环
 function animate() {
 	// TWEEN.update
@@ -1197,7 +1084,7 @@ function animate() {
 	
   const deltaTime = clock.getDelta()
   requestAnimationFrame(animate)
-
+	
    
   
         // if (keyStates.W) {
@@ -1327,14 +1214,24 @@ function cleanup() {
 // 处理请求
 async function handleRequest() {
   const posts = await fetchPosts()
-  console.log(posts)
+  // console.log(posts)
 }
 
 // 组件挂载时初始化
 onMounted(() => {
+	
   initThreeScene()
-  loadGLBModel()
+  
 
+
+  loadGLBModel()
+ //    initHelper()
+ // addMarkModel()
+ // initControls()
+ 
+  // containerFK.value.addEventListener('pointermove', onPointerMove)
+  
+  // initDragControls()
 })
 
 // 组件卸载时清理
@@ -1344,8 +1241,7 @@ onUnmounted(() => {
 </script>
 
 <style lang="scss" scoped>
-
-	    #close:hover {
+    #close:hover {
 	        cursor: pointer;
 	    }
 
