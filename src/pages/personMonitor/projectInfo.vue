@@ -10,7 +10,7 @@
     <div class="component-title">
       <img src="@/assets/images/common/component-icon.png" class="component-title-icon" alt="">
       <div class="component-text">
-        <span class="component-title-text">采购项目信息</span>
+        <span class="component-title-text">人员列表</span>
       </div>
     </div>
     <div class="component-box">

@@ -14,5 +14,30 @@
       background: url("@/assets/images/common/component-title-bg.png") no-repeat top left / auto 100%;
     }
   }
-  .component-box {}
+}
+// 模块select背景图片
+.custom-select { 
+  .el-select__wrapper {
+    background-image: url('@/assets/images/common/select-bj.png');
+    background-repeat: no-repeat;
+    background-position: center;
+    height: 35px; /* 根据需要调整 */
+    justify-content: center; /* 水平居中 */
+
+    background-color: inherit;
+    box-shadow: inherit;
+    // padding: 5px 20px 0px 20px;
+    // width: 93px;
+    padding: 5px 0px 0px 55px;
+    width: 160px;
+    
+    .el-select__placeholder.is-transparent {color: #D0E6FF;}
+    .el-select__suffix {display: none;}
+    .el-select__placeholder { color: #fff;}
+  }
+  .el-select__wrapper.is-hovering:not(.is-focused) { 
+    box-shadow:inherit; 
+    background-image:url('@/assets/images/common/select-bj2.png');
+  }
+  
 }

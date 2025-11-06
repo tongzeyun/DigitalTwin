@@ -888,7 +888,7 @@ const AddLabels = (obj) => {
 
 //卸载标签
 const DelLabels = (obj) => {
-      DelLabelsAll(obj)
+      DelLabelsAll(obj,labelList)
 }
 
 
@@ -907,15 +907,17 @@ const DelLabels = (obj) => {
 	// console.log(labelElement)
     labelElement.onclick = (event) => {
       event.stopPropagation(); // 阻止事件冒泡
-      if (label.route) {
-        // 使用window.location.href进行跳转
-        // window.location.href = '/frtwin'+ label.route;
-        // 使用vue3 导航式路由跳转
-        router.push(label.route)
-      }else{
-		    visibleReply()//恢复状态
-		    cameraTween(label.pos.x,label.pos.y,label.pos.z,label.pos2.x,label.pos2.y,label.pos2.z)
-	    }
+      if(obj <3){
+        if (label.route) {
+          // 使用window.location.href进行跳转
+          // window.location.href = '/frtwin'+ label.route;
+          // 使用vue3 导航式路由跳转
+          router.push(label.route)
+        }else{
+          visibleReply()//恢复状态
+          cameraTween(label.pos.x,label.pos.y,label.pos.z,label.pos2.x,label.pos2.y,label.pos2.z)
+        }
+      }
     };
     const box = createLabel({
       name: name,
@@ -929,7 +931,7 @@ const DelLabels = (obj) => {
 };
 
 //卸载标签
-const DelLabelsAll = (obj) => {
+const DelLabelsAll = (obj,labelList) => {
 	 let name=''
    // console.log(labelList)
   labelList.forEach((label) => {
