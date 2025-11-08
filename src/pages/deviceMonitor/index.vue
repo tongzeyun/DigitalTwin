@@ -9,18 +9,23 @@
   <div class="device-monitor">
     <div class="device_l">
       <div class="top">
-        <div class="top_header">
-          <div style="display: flex;align-items: center;">
-            <img src="@/assets/images/device/arrow_r.png" />
-            <div class="tit">区域设备统计</div>
+        <div class="top_header component-container">
+          <div class="component-title">
+            <img src="@/assets/images/common/component-icon.png" class="component-title-icon" alt="">
+            <div class="component-text" style="display: flex;align-items: center;justify-content:space-between;">
+              <span class="component-title-text">区域设备统计</span>
+              <div class="search">
+                <img src="@/assets/images/device/search.png" />
+                请搜索
+              </div>
+            </div>
+            
           </div>
-          <div class="search">
-            <img src="@/assets/images/device/search.png" />
-            请搜索
-          </div>
+          
         </div>
         <div class="top_info">
           <div class="top_item" v-for="ele in statList">
+            
             <img :src="ele.imgUrl"></img>
             <div>
               <div style="display: flex;align-items: center;">
@@ -33,15 +38,17 @@
         </div>
       </div>
       <div class="btm">
-        <div class="btm_header">
-          <div style="display: flex;align-items: center;">
-            <img src="@/assets/images/device/arrow_r.png" />
-            <div class="tit">设备告警统计</div>
+        <div class="btm_header component-container">
+          <div class="component-title">
+            <img src="@/assets/images/common/component-icon.png" class="component-title-icon" alt="">
+            <div class="component-text" style="display: flex;align-items: center;justify-content:space-between;">
+              <span class="component-title-text">设备告警统计</span>
+              <div class="search">
+                <img src="@/assets/images/device/search.png" />
+                请搜索
+              </div>
+            </div>
           </div>
-          <!-- <div class="search">
-            <img src="@/assets/images/device/search.png" />
-            请搜索
-          </div> -->
         </div>
         <div class="btm_info">
           <div class="btm_item" v-for="ele in warnList"> 
@@ -56,7 +63,46 @@
         </div>
       </div>
     </div>
-    <div class="device_r"></div>
+    <div class="device_r">
+      <div class="top">
+        <div class="top_header component-container">
+          <div class="component-title">
+            <img src="@/assets/images/common/component-icon.png" class="component-title-icon" alt="">
+            <div class="component-text" style="display: flex;align-items: center;justify-content:space-between;">
+              <span class="component-title-text">区域设备统计</span>
+              <div class="left" style="display: flex; align-items: center;">
+                <div class="kanban" style="margin-right: 10px;width: 25px;height: 25px;">
+                  <img style="width: 100%;height: 100%;display: block;" src="@/assets/images/device/device_kanban.png"> </img>
+                </div>
+                <div class="search">
+                  <img src="@/assets/images/device/search.png" />
+                  请搜索
+                </div>
+              </div>
+              
+            </div>
+          </div>
+          
+        </div>
+        <div class="device_info">
+          <div class="device_item" v-for="ele in deviceList">
+            <img :src="ele.imgUrl" class="device_icon"></img>
+            <div class="text">
+              <div class="id"><span>型号</span>{{ ele.id }}</div>
+              <div class="name"><span>名称</span>{{ ele.name }}</div>
+              <div class="pos"><span>位置</span>{{ ele.pos }}</div>
+            </div>
+            <div class="right">
+              <div class="type">{{ ele.type }}</div>
+              <div class="btn_box">
+                <div class="btn">编辑</div>
+                <div class="state" :class="ele.state == '0' ? 'offline' : 'online'">{{ ele.state == '0' ? '离线' : '在线' }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -82,10 +128,18 @@ const warnList = ref([
 
 let warnMax = ref(Math.max(...warnList.value.map(item => item.num)))
 
+const deviceList = ref([
+  {id:'MJJ0001',imgUrl:'/frtwin/src/assets/images/device/stat_8.png', type:'人脸室别闸机',state:'0',name:'聚德楼入口闸机',pos:'聚德楼1楼入口'},
+  {id:'MJJ0001',imgUrl:'/frtwin/src/assets/images/device/stat_8.png', type:'人脸室别闸机',state:'1',name:'聚德楼入口闸机',pos:'聚德楼1楼入口'},
+  {id:'MJJ0001',imgUrl:'/frtwin/src/assets/images/device/stat_8.png', type:'人脸室别闸机',state:'0',name:'聚德楼入口闸机',pos:'聚德楼1楼入口'},
+  {id:'MJJ0001',imgUrl:'/frtwin/src/assets/images/device/stat_8.png', type:'人脸室别闸机',state:'1',name:'聚德楼入口闸机',pos:'聚德楼1楼入口'},
+])
+
 </script>
 
 <style lang="scss" scoped>
 .device-monitor {
+  width: 100%;
   color: #fff;
   position: absolute;
   top: 128px;
@@ -103,7 +157,7 @@ let warnMax = ref(Math.max(...warnList.value.map(item => item.num)))
   height: fit-content;
   background: linear-gradient( 90deg, rgba(7,42,101,0.91) 0%, rgba(10,32,43,0) 100%);
   .top{
-    width: 100%;
+    width: 420px;
     .top_header{
       width: 100%;
       height: 45px;
@@ -118,7 +172,7 @@ let warnMax = ref(Math.max(...warnList.value.map(item => item.num)))
       background: radial-gradient( 15% 103% at 7% 83%, #004FB7 0%, rgba(47,67,135,0) 100%), linear-gradient( 181deg, rgba(0,57,135,0) 0%, #39BDFF 100%);
       backdrop-filter: blur(9px);
       box-sizing: border-box;
-      padding: 0 15px;
+      // padding: 0 15px;
       .search{
         width: 70px;
         height: 24px;
@@ -132,6 +186,7 @@ let warnMax = ref(Math.max(...warnList.value.map(item => item.num)))
         align-items: center;
         justify-content: space-around;
         cursor: pointer;
+        margin-right: 15px;
         img{
           width: 14px;
           height: 14px;
@@ -185,7 +240,8 @@ let warnMax = ref(Math.max(...warnList.value.map(item => item.num)))
     }
   }
   .btm{
-    width: 100%;
+    width: 420px;
+    margin-top: 20px;
     .btm_header{
       width: 100%;
       height: 45px;
@@ -200,7 +256,7 @@ let warnMax = ref(Math.max(...warnList.value.map(item => item.num)))
       background: radial-gradient( 15% 103% at 7% 83%, #004FB7 0%, rgba(47,67,135,0) 100%), linear-gradient( 181deg, rgba(0,57,135,0) 0%, #39BDFF 100%);
       backdrop-filter: blur(9px);
       box-sizing: border-box;
-      padding: 0 15px;
+      // padding: 0 15px;
       .search{
         width: 70px;
         height: 24px;
@@ -214,6 +270,7 @@ let warnMax = ref(Math.max(...warnList.value.map(item => item.num)))
         align-items: center;
         justify-content: space-around;
         cursor: pointer;
+        margin-right: 15px;
         img{
           width: 14px;
           height: 14px;
@@ -257,6 +314,116 @@ let warnMax = ref(Math.max(...warnList.value.map(item => item.num)))
           color: #FFFFFF;
           line-height: 25px;
           text-align: right;
+        }
+      }
+    }
+  }
+}
+.device_r{
+  width: 420px;
+  height: fit-content;
+  .top{
+    width: 420px;
+    .top_header{
+      width: 100%;
+      height: 45px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: YouSheBiaoTiHei;
+      font-size: 26px;
+      color: #FFFFFF;
+      line-height: 34px;
+      text-align: left;
+      background: radial-gradient( 15% 103% at 7% 83%, #004FB7 0%, rgba(47,67,135,0) 100%), linear-gradient( 181deg, rgba(0,57,135,0) 0%, #39BDFF 100%);
+      backdrop-filter: blur(9px);
+      box-sizing: border-box;
+      // padding: 0 15px;
+      .search{
+        width: 70px;
+        height: 24px;
+        font-family: PingFangSC, PingFang SC;
+        font-weight: 500;
+        font-size: 12px;
+        color: #FFFFFF;
+        line-height: 17px;
+        background: url('@/assets/images/device/search_bg.png') no-repeat center;
+        display: flex;
+        align-items: center;
+        justify-content: space-around;
+        cursor: pointer;
+        margin-right: 15px;
+        img{
+          width: 14px;
+          height: 14px;
+        }
+      }
+    }
+    .device_info{
+      width: 100%;
+      .device_item{
+        height: 76px;
+        background: url('@/assets/images/device/device_item_bg.png') no-repeat center;
+        background-size: 100% 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 10px;
+        margin-top: 10px;
+        .device_icon{
+          width: 65px;
+          height: 65px;
+          border-radius: 5px;
+        }
+        .text{
+          color: white;
+          font-size: 12px;
+          text-align: left;
+          span{
+            opacity: 0.72;
+          }
+        }
+        .right{
+          .type{
+            width: 104px;
+            height: 28px;
+            background: url('@/assets/images/device/device_type_bg.png') no-repeat center;
+            background-size: 100% 100%;
+            font-family: PingFangSC, PingFang SC;
+            font-weight: 600;
+            font-size: 14px;
+            color: #FFFFFF;
+            line-height: 20px;
+            text-shadow: 0px 2px 12px rgba(198,245,255,0.56);
+            text-align: center;
+          }
+          .btn_box{
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            
+            .btn{
+              margin-right: 20px;
+              cursor: pointer;
+            }
+            .state{
+              width: 50px;
+              height: 28px;
+              background-position: center;
+              background-size: 100% 100%;
+              background-repeat: no-repeat;
+              font-family: PingFangSC, PingFang SC;
+              font-weight: 600;
+              font-size: 16px;
+              color: #FFFFFF;
+            }
+            .offline{
+              background-image: url('@/assets/images/device/device_state_off.png');
+            }
+            .online{
+              background-image: url('@/assets/images/device/device_state_on.png');
+            }
+          }
         }
       }
     }
