@@ -45,9 +45,7 @@ import TWEEN from '@tweenjs/tween.js'
 // import {
 // 		DragControls
 // 	} from "three/examples/jsm/controls/DragControls"; //拖拽控件
-// 	import {
-// 		TransformControls
-// 	} from "three/examples/jsm/controls/TransformControls"; //可视化平移控件
+import { TransformControls } from "three/examples/jsm/controls/TransformControls"; //可视化平移控件
 // import { Model } from 'echarts'
 import { labelList} from "./js/labelList";
 import { useHookOne ,useHookTwo } from './hooks/hooksIndex.js'
@@ -90,7 +88,7 @@ const nameLabels = new Map()
 // let mixer: AnimationMixer; // 动画混合器（管理模型所有动画）
 // let camera: THREE.PerspectiveCamera | THREE.OrthographicCamera; // 模型内置摄像机
 // Three.js场景相关变量
-let scene, camera, renderer, controls, loader, labelRenderer, mixer,controlsFK // 动画混合器
+let scene, camera, renderer, controls, loader, labelRenderer, mixer // 动画混合器
 let clock // 时钟，用于动画更新
 let worldSignalPos //坐标
 // 动画存储
@@ -212,16 +210,16 @@ function initThreeScene() {
 
   // 添加轨道控制器
   controls = new OrbitControls(camera, renderer.domElement)
-  controls.enableDamping = false
+  // controls.enableDamping = false
 
   // 创建时钟用于动画更新
   clock = new THREE.Clock()
   // controls.dampingFactor = 0.05
   controls.autoRotate = false
 
-  // 限制上下旋转角度
-  controls.minPolarAngle = Math.PI / 12// 30度（不允许用户完全向下看）
-  controls.maxPolarAngle = 2 * Math.PI / 4 // 90度（不允许用户完全向上看）
+  // // 限制上下旋转角度
+  // controls.minPolarAngle = Math.PI / 12// 30度（不允许用户完全向下看）
+  // controls.maxPolarAngle = 2 * Math.PI / 4 // 90度（不允许用户完全向上看）
 
   // 添加环境光 - 进一步降低强度使阴影更明显
   const ambientLight = new THREE.AmbientLight(0xffffff, 1.5)  // 降低强度使阴影颜色更深
@@ -379,7 +377,7 @@ async function loadGLBModel() {
         
         // 居中模型
         centerModel(model)
-        model.rotateY(-Math.PI/18.2); //根据真实地图方向调整
+        // model.rotateY(-Math.PI/18.4); //根据真实地图方向调整
 
         try {
           AddLabels(0); //加载标签 
@@ -497,6 +495,71 @@ async function loadGLBModel() {
   }
 }
 
+let splineHelperObjects =[]
+let transformControl
+const pointer = new THREE.Vector2()
+async function addMarkModel() { //创建设备贴图
+    const geometry = new THREE.BoxGeometry(3, 3, 3)
+    // const spherMaterial = new THREE.MeshPhongMaterial({
+    //     transparent: true,
+    //     opacity: 1,
+    //     color: 'green'
+    // })
+    // const sphere = new THREE.Mesh(geometry, spherMaterial)
+
+
+    // var geometry = new THREE.PlaneGeometry(10, 10, 32); //平面
+	var textureLoader = new THREE.TextureLoader(); // 纹理加载器
+	var texture = textureLoader.load('/frtwin/sky/px.jpg'); 
+	// 设置阵列模式   默认ClampToEdgeWrapping  RepeatWrapping：阵列  镜像阵列：MirroredRepeatWrapping
+	// texture.wrapS = THREE.RepeatWrapping;
+	// texture.wrapT = THREE.RepeatWrapping;
+	// // uv两个方向纹理重复数量
+	// texture.repeat.set(10, 10);
+	var material = new THREE.MeshBasicMaterial({
+		map: texture, // 设置纹理贴图
+		side: THREE.DoubleSide,
+    name:'设备名称'
+	});
+	var plane = new THREE.Mesh(geometry, material);
+    splineHelperObjects.push(plane) // 关键
+    scene.add(plane)
+    addMarkModelClick()
+    return plane
+}
+const raycaster2 = new THREE.Raycaster()
+async function initControls() {
+  transformControl = new TransformControls(camera, renderer.domElement)
+  transformControl.setSize(0.3);
+    transformControl.setMode("translate");
+    //当除了移动控件的其他控件触发时，禁止移动控件
+    transformControl.addEventListener('dragging-changed', function (event) {
+        controls.enabled = !event.value;
+    });
+    scene.add(transformControl.getHelper())
+}
+// 鼠标拖拽移动
+function addMarkModelClick() {
+  function onPointerMove(event) {
+      pointer.x = (event.clientX / window.innerWidth) * 2 - 1
+      pointer.y = -(event.clientY / window.innerHeight) * 2 + 1
+      raycaster2.setFromCamera(pointer, camera)
+      const intersects = raycaster2.intersectObjects(splineHelperObjects, true)
+      if (intersects.length > 0) {
+          const object = intersects[0].object
+          console.log(object,intersects,transformControl.object,'SSSSSSSSS1111111111111')
+          if (object !== transformControl.object) {
+              transformControl.attach(object)
+              controls.enabled = false
+          }
+      }
+  }
+  renderer.domElement.addEventListener('click', onPointerMove)//onPointerMove //onMouseClick
+}
+
+
+
+
 //动画函数 
 function loadAnimation(type) {
 
@@ -613,12 +676,8 @@ function render() {
 	// const pos = new THREE.Vector3();
 	// //获取三维场景中某个对象世界坐标
 	// model.getObjectByName(chooseObj.name+'标注').getWorldPosition(pos); 
-
-	
     TWEEN.update(); //循环已有 animate 放到 animate
 }
-
-
 
 function cameraTween(x,y,z,ax,ay,az) {
 	// 		  	y高度视角（ty>y 俯视角度）
@@ -683,7 +742,7 @@ function addClickEventListener() {
 	
 
 	function onMouseClick(event) {
-	
+
     // 计算鼠标在标准化设备坐标中的位置
     const rect = renderer.domElement.getBoundingClientRect()
     mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1
@@ -691,6 +750,7 @@ function addClickEventListener() {
 
     // 设置射线投射器
     raycaster.setFromCamera(mouse, camera)
+
 	// model.visible=false
     // 计算与射线相交的对象
     const intersects = raycaster.intersectObjects(scene.children, true)
@@ -818,7 +878,7 @@ function addClickEventListener() {
     }
   }
 
-  renderer.domElement.addEventListener('click', onMouseClick)
+  renderer.domElement.addEventListener('click', onMouseClick)//onPointerMove //onMouseClick
 }
 function visibleFalse(name, louName1){
 		model.traverse((child) => {
@@ -1228,10 +1288,9 @@ onMounted(() => {
 
   loadGLBModel()
  //    initHelper()
- // addMarkModel()
- // initControls()
+ addMarkModel()
+ initControls()
  
-  // containerFK.value.addEventListener('pointermove', onPointerMove)
   
   // initDragControls()
 })
